@@ -25,11 +25,11 @@ class Hashnode
    /**
     * Create current hashnode also set the current item.
     *
-    * @param string $key
+    * @param mixed $key
     * @param mixed $item
     * @return void
     */
-    public function __construct(string $key, $item)
+    public function __construct($key, $item)
     {
         $this->key = $key;
         $this->item = $item;
