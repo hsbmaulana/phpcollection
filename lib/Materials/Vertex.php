@@ -9,11 +9,11 @@ use \Exception;
 class Vertex
 {
    /**
-    * Item of the current node.
+    * Label of the current node.
     *
-    * @var mixed
+    * @var string
     */
-    public $item = null;
+    public $label = "";
 
    /**
     * Determine if the vertex has visited or not.
@@ -23,14 +23,13 @@ class Vertex
     public $visited = false;
 
    /**
-    * Create vertex node also set the current item.
+    * Create vertex node also set the label name.
     *
-    * @param mixed $item
+    * @param string $label
     * @return void
     */
-    public function __construct($item)
+    public function __construct(string $label)
     {
-        $this->item = $item;
+        $this->label = $label;
     }
 }
-
