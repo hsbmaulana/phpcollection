@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="vendor/autoload.php" processIsolation="true" testdox="true">
+
+    <testsuites>
+        <testsuite name="Lists">
+            <directory phpVersion="8.0.0" phpVersionOperator=">=" suffix="Test.php">./test/Lists</directory>
+        </testsuite>
+        <testsuite name="Hashes">
+            <directory phpVersion="8.0.0" phpVersionOperator=">=" suffix="Test.php">./test/Hashes</directory>
+        </testsuite>
+        <testsuite name="Trees">
+            <directory phpVersion="8.0.0" phpVersionOperator=">=" suffix="Test.php">./test/Trees</directory>
+        </testsuite>
+        <testsuite name="Graphs">
+            <directory phpVersion="8.0.0" phpVersionOperator=">=" suffix="Test.php">./test/Graphs</directory>
+        </testsuite>
+    </testsuites>
+
+    <groups>
+        <include>
+            <group>Unit</group>
+        </include>
+        <exclude>
+            <group>Integration</group>
+            <group>Feature</group>
+        </exclude>
+    </groups>
+
+</phpunit>

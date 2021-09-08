@@ -1,1 +1,1 @@
-bin/install.php
+bin/run.php

@@ -14,18 +14,19 @@ $ composer require hsbmaulana/phpcollection
 How to use :
 
 ```php
-require_once(__DIR__ . '/vendor/autoload.php');
+require_once __DIR__ . '/vendor/autoload.php';
 
-use Collections\Lists\ArrayList;
-use Collections\Lists\LinkedList;
+use Lists\{ArrayList, LinkedList};
 
-$collection = new ArrayList();
+$list = new ArrayList();
 
-$collection->add(1);
-$collection->add(2);
-$collection->add(3);
+$list->add("A");
+$list->add("B");
+$list->add("C");
+$list->add("D");
+$list->add("E");
 
-assert($collection->count() === 3);
+assert($collection->count() === 5);
 ```
 
 [Replit](https://replit.com/@hsbmaulana/phpcollection)

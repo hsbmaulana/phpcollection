@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+
+  core:
+
+    build:
+
+      context: "./"
+      dockerfile: "Dockerfile"
+      args:
+
+        name: ${NAME}
+
+    image: "${NAME}:1.0.0"
+    container_name: ${NAME}
+
+    volumes:
+
+      - "./.env:/var/www/${NAME}/.env"
+      - "./phpunit.xml:/var/www/${NAME}/phpunit.xml"
+      - "./composer.json:/var/www/${NAME}/composer.json"
+      - "./index.php:/var/www/${NAME}/index.php"
+
+      - "./bin/:/var/www/${NAME}/bin/"
+      - "./src/:/var/www/${NAME}/src/"
+      - "./test/:/var/www/${NAME}/test/"
+
+    # entrypoint: [] #
+    # command: ["tail", "-f", "/dev/null"] #

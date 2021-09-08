@@ -2,319 +2,261 @@
 
 declare(strict_types=1);
 
-namespace Collections\Lists;
+namespace Lists;
 
-use \Exception;
-use \Libraries\Materials\Node;
+use Error;
+use Exception;
+use Lists\Contracts\{IList, Iterateable, Sortable, Searchable};
 
-class LinkedList
+class Node
 {
    /**
-    * Current node of the collection.
-    *
-    * @var \Libraries\Materials\Node
+    * @var Node|null
     */
-    private $current = null;
+    public ?Node $previous = null;
 
    /**
-    * Latest node of the collection.
-    *
-    * @var \Libraries\Materials\Node
+    * @var Node|null
     */
-    private $foot = null;
+    public ?Node $next = null;
 
    /**
-    * Lowest node of the collection.
-    *
-    * @var \Libraries\Materials\Node
+    * @var int|string $value
     */
-    private $head = null;
+    public int|string $value;
 
    /**
-    * Create a new list collection.
+    * @param int|string $value
     *
-    * @param mixed $items
     * @return void
     */
-    public function __construct($items = null)
+    public function __construct(int|string $value)
     {
-        if($items instanceof Node) {
+        $this->value = $value;
+    }
 
-            $this->combine($items);
+   /**
+    * @return void
+    */
+    public function __destruct() {}
+}
+
+class LinkedList implements IList, Sortable, Searchable
+{
+   /**
+    * @var int
+    */
+    private int $length = 0;
+
+   /**
+    * @var Node|null
+    */
+    public ?Node $head = null;
+
+   /**
+    * @var Node|null
+    */
+    public ?Node $foot = null;
+
+   /**
+    * @return void
+    */
+    public function __construct() {}
+
+   /**
+    * @return void
+    */
+    public function __destruct() {}
+
+   /**
+    * @param int|string $value
+    *
+    * @return void
+    */
+    public function add(int|string $value) : void
+    {
+        if ($this->head === null) {
+
+            $this->head = new Node($value);
+            $this->foot = $this->head;
+
+            $this->length++;
+
         } else {
 
-            $this->add($items);
+            $current = $this->head;
+
+            while ($current->next) {
+
+                $current = $current->next;
+            }
+
+            $current->next = new Node($value);
+            $current->next->previous = $current;
+
+            $this->foot = $current->next;
+            $this->length++;
         }
     }
 
    /**
-    * Material node extension.
-    *
-    * @param mixed $item
-    * @return \Libraries\Materials\Node
+    * @return int
     */
-    private function __material__($item) : Node
-    {    
-        return new class($item) extends Node
+    public function count() : int
+    {
+        return $this->length;
+    }
+
+   /**
+    * @param int $index
+    *
+    * @return int|string|null
+    */
+    public function get(int $index) : int|string|null
+    {
+        if ($index >= 0 && $index < $this->count()) {
+
+            for ($iterator = $this->iterate(), $i = 0; $iterator->hasNext(); $i++) {
+
+                $value = $iterator->next(); if ($i === $index) return $value;
+            }
+        }
+
+        return null;
+    }
+
+   /**
+    * @return \Lists\Contracts\Iterateable
+    */
+    public function iterate() : Iterateable
+    {
+        return new class($this) implements Iterateable
         {
-           /**
-            * Create an anonymous material node extension.
-            *
-            * @param mixed $item
-            * @return void
-            */
-            public function __construct($item)
+            /**
+             * @var Node|null
+             */
+            public ?Node $iterator = null;
+
+            /**
+             * @var \Lists\Contracts\IList
+             */
+            private \Lists\Contracts\IList $state;
+
+            /**
+             * @param \Lists\Contracts\IList $state
+             *
+             * @return void
+             */
+            public function __construct(IList $state)
             {
-                parent::__construct($item);                
+                $this->state = $state;
+                $this->iterator = $this->state->head;
             }
 
-           /**
-            * Modify item in the collection by state of iterator.
-            *
-            * @param mixed $item
-            * @return void
-            */
-            public function modify($item)
-            {        
-                $this->item = $item;
+            /**
+             * @return void
+             */
+            public function __destruct() {}
+
+            /**
+             * @return bool
+             */
+            public function hasNext() : bool
+            {
+                return $this->iterator !== null;
             }
 
-           /**
-            * Remove a node in the collection by state of iterator.
-            *
-            * @return void
-            */
-            public function remove()
+            /**
+             * @return int|string|null
+             */
+            public function next() : int|string|null
             {
-                if($this->previous != null) {
+                if ($this->hasNext()) {
 
-                    $current = &$this->previous->next;
+                    $value = $this->iterator->value;
+                    $this->iterator = $this->iterator->next;
 
-                    if($this->next != null) {
-
-                        $next = $this->next;
-                        $previous = $this->previous;
-
-                        $current = $next;
-                        $current->previous = $previous;
-
-                        return;
-                    }
-
-                    $current = null;
-
-                    return;
-                }            
-
-                throw new Exception("Cannot remove the head node");
-            }
-
-           /**            
-            * Get the next node of nodes in the collection.
-            *            
-            * @return mixed
-            */
-            public function toNext()
-            {
-                if($this->next === null) {
-                    
-                    throw new Exception("The next node seems like doesn't exist");
-
-                    return;
+                    return $value;
                 }
 
-                return $this->next;                
-            }
-
-           /**            
-            * Get the previous node of nodes in the collection.
-            *            
-            * @return mixed
-            */
-            public function toPrevious()
-            {
-                if($this->previous === null) {
-                    
-                    throw new Exception("The previous node seems like doesn't exist");
-
-                    return;
-                }
-
-                return $this->previous;
+                return null;
             }
         };
     }
 
    /**
-    * Adding an item to the collection.
+    * @param int $index
+    * @param int|string $value
     *
-    * @param mixed $item
     * @return void
     */
-    public function add($item) {
-
-        if($this->head === null) {
-
-            $this->head = $this->__material__($item);
-            $this->foot = null;
-
-            return;
-        }
-
-        $current = $this->head;
-
-        while($current->next != null) {
-
-            $current = $current->next;
-        }
-
-        $material = $this->__material__($item);    
-        $material->previous = $current;
-
-        $current->next = $material;
-        
-        $this->foot = null;
-    }
-
-   /**
-    * Check whether item given exist or not.
-    *
-    * @param mixed $item
-    * @return bool
-    */
-    public function contain($item) : bool
+    public function modify(int $index, int|string $value) : void
     {
-        $current = $this->head;        
+        if ($index >= 0 && $index < $this->count()) {
 
-        while($current != null) {
+            for ($iterator = $this->iterate(), $i = 0; $iterator->hasNext(); $i++) {
 
-            if($item == $current->item) {
+                $node = $iterator->iterator; if ($i === $index) { $node->value = $value; return; }
 
-                return true;
+                $iterator->next(); 
             }
-
-            $current = $current->next;
-        }
-
-        return false;
-    }
-
-   /**
-    * Combine given node to existed nodes.
-    *
-    * @param \Libraries\Materials\Node $material
-    * @return void
-    */
-    public function combine(Node $material)
-    {
-        $current = $material;
-
-        while($current != null) {
-        
-            $this->add($current->item);
-
-            $current = $current->next;
         }
     }
 
    /**
-    * Count the number of items of the collection.
-    *
-    * @return int
-    */
-    public function count() : int
-    {
-        $length = 0;
-        $current = $this->head;        
-
-        while($current != null) {
-
-            $length++;
-
-            $current = $current->next;        
-        }
-
-        return $length;
-    }
-
-   /**
-    * Give an action to each nodes in the collection.
-    *
-    * @param \Closure $callback
-    * @return void
-    */
-    public function each(\Closure $callback)
-    {
-        $current = $this->head;
-
-        while($current != null) {
-
-            $callback($current);
-
-            $current = $current->next;
-        }
-    }
-
-   /**
-    * Get RAW of the node instance.
-    *
-    * @return \Libraries\Materials\Node
-    */
-    public function getIterator() : Node
-    {
-        return $this->head;
-    }
-
-   /**
-    * Determine if the collection is empty or not.
-    *
-    * @return bool
-    */
-    public function isEmpty() : bool
-    {
-        if($this->head === null) {
-            
-            return true;
-        }
-
-        return false;
-    }
-
-   /**
-    * Determine if the collection is not empty.
-    *
-    * @return bool
-    */
-    public function isNotEmpty() : bool
-    {    
-        return !$this->isEmpty();
-    }
-
-   /**
-    * Show all of items in the collection.
+    * @param int $index
     *
     * @return void
     */
-    public function print()
+    public function remove(int $index) : void
     {
-        $current = $this->head;        
+        if ($index >= 0 && $index < $this->count()) {
 
-        while($current != null) {
+            for ($iterator = $this->iterate(), $i = 0; $iterator->hasNext(); $i++) {
 
-            print($current->item . "\n");
+                $node = &$iterator->iterator;
 
-            $current = $current->next;
-        }        
+                if ($i === $index) {
+
+                    if ($node->previous && $node->next) {
+
+                        $node->previous->next = $node->next;
+                        $node->next->previous = $node->previous;
+
+                    } else if ($node->previous && $node->next === null) {
+
+                        $node->previous->next = null;
+                        $this->foot = $node->previous;
+
+                    } else if ($node->previous === null && $node->next) {
+
+                        $node->next->previous = null;
+                        $this->head = $node->next;
+
+                    } else if ($node->previous === null && $node->next === null) {
+
+                        $node = null;
+                        $this->head = $node;
+                        $this->foot = $node;
+                    }
+
+                    $this->length--;
+
+                    return;
+                }
+
+                $iterator->next();
+            }
+        }
     }
 
    /**
-    * Clear nodes in the list collection.
-    *
     * @return void
     */
-    public function reset()
-    {
-        $this->head = null;
-    }
+    public function sort() : void {}
+
+   /**
+    * @return int|string|null
+    */
+    public function search() : int|string|null {}
 }
-
