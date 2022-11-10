@@ -1,7 +1,13 @@
 {
     "name": "hsbmaulana/phpcollection",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Data Structure and Algorithm",
+
+    "readme": "README.md",
+    "license": "MIT",
+    "authors": [ { "name": "Hasby Maulana", "email": "hsbmaulana.iso@protonmail.com" } ],
+    "homepage": "https://github.com/hsbmaulana/phpcollection",
+    "support": { "issues": "https://github.com/hsbmaulana/phpcollection/issues" },
 
     "require": {
 
